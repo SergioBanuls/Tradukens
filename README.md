@@ -6,6 +6,10 @@
 
 Tradukens is a local prompt translator wrapper for coding CLIs. You write a prompt in Spanish, press Enter, and Tradukens sends an English version to the selected agent.
 
+<p align="center">
+  <img src="assets/chart.png" alt="Comparison table showing how prompt language affects token usage and model behavior" width="760">
+</p>
+
 V1 targets:
 
 - Codex CLI
@@ -13,6 +17,24 @@ V1 targets:
 - OpenCode
 
 The runtime path is local-only after the one-time setup downloads language models.
+
+## Token impact
+
+Prompt language changes token usage. Tradukens lets you measure the difference with the same local translation pipeline used by the wrapped CLIs:
+
+```bash
+tradukens savings "arregla este bug sin cambiar la API pública"
+```
+
+The following measurements were generated with `tradukens savings --json` using the `o200k_base` tokenizer. They only count the user prompt, not the rest of the model context.
+
+| Prompt sample | Spanish tokens | English tokens | Tokens saved | Savings |
+| --- | ---: | ---: | ---: | ---: |
+| Short bugfix prompt | 10 | 7 | 3 | 30.00% |
+| Render investigation prompt | 19 | 18 | 1 | 5.26% |
+| Validation and tests prompt | 22 | 14 | 8 | 36.36% |
+| Long UX/e-commerce prompt | 875 | 748 | 127 | 14.51% |
+| **Total** | **926** | **787** | **139** | **15.01%** |
 
 ## Install
 
