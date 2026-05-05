@@ -1,0 +1,59 @@
+[project]
+name = "tradukens"
+version = "0.1.0"
+description = "Local prompt translator wrapper for coding CLIs."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Sergio Banuls" },
+]
+keywords = [
+    "ai",
+    "cli",
+    "codex",
+    "claude",
+    "opencode",
+    "prompt",
+    "tokens",
+    "translation",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "argostranslate>=1.9.6",
+    "fasttext-wheel>=0.9.2",
+    "numpy<2",
+    "tiktoken>=0.11.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/SergioBanuls/Tradukens"
+Repository = "https://github.com/SergioBanuls/Tradukens"
+Issues = "https://github.com/SergioBanuls/Tradukens/issues"
+
+[project.scripts]
+tradukens = "tradukens.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
