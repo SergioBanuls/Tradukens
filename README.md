@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/SergioBanuls/Tradukens/main/install
 Manual install:
 
 ```bash
-uv tool install git+https://github.com/SergioBanuls/Tradukens.git
+uv tool install --python 3.12 git+https://github.com/SergioBanuls/Tradukens.git
 tradukens setup --lang es
 tradukens doctor
 ```

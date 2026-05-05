@@ -31,7 +31,7 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 say "Installing Tradukens from $INSTALL_SOURCE..."
-uv tool install --force "$INSTALL_SOURCE"
+uv tool install --python 3.12 --force "$INSTALL_SOURCE"
 
 if ! command -v tradukens >/dev/null 2>&1; then
   fail "tradukens was installed but is not available on PATH"
