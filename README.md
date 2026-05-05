@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Tradukens logo" width="160">
+</p>
+
 # Tradukens
 
 Tradukens is a local prompt translator wrapper for coding CLIs. You write a prompt in Spanish, press Enter, and Tradukens sends an English version to the selected agent.

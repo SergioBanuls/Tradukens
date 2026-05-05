@@ -56,7 +56,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build]
 exclude = [
-    "/logo.png",
+    "/assets",
 ]
 
 [tool.pytest.ini_options]
