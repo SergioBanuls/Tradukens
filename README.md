@@ -52,7 +52,7 @@ tradukens setup --lang es
 tradukens doctor
 ```
 
-From a local checkout:
+Development from a local checkout:
 
 ```bash
 uv sync
@@ -65,25 +65,19 @@ uv run tradukens doctor
 Translate text:
 
 ```bash
-uv run tradukens translate "arregla este bug sin cambiar la API pública"
-```
-
-If installed globally, omit `uv run`:
-
-```bash
 tradukens translate "arregla este bug sin cambiar la API pública"
 ```
 
 Measure token savings:
 
 ```bash
-uv run tradukens savings "arregla este bug sin cambiar la API pública"
+tradukens savings "arregla este bug sin cambiar la API pública"
 ```
 
 Start a wrapped Codex session:
 
 ```bash
-uv run tradukens codex
+tradukens codex
 ```
 
 By default this starts the official Codex TUI inside a pseudo-terminal. Codex still receives your typing while you compose, so its input box, slash commands, and multi-line editing keep their native behavior.
@@ -93,19 +87,19 @@ Use `Shift+Enter` for Codex's native line break before submitting the prompt.
 The older non-interactive wrapper is still available:
 
 ```bash
-uv run tradukens codex --mode exec
+tradukens codex --mode exec
 ```
 
 Start a wrapped Claude Code session:
 
 ```bash
-uv run tradukens claude
+tradukens claude
 ```
 
 Start a wrapped OpenCode session:
 
 ```bash
-uv run tradukens opencode
+tradukens opencode
 ```
 
 When starting `codex`, `claude`, or `opencode`, Tradukens checks the latest GitHub release and prints a short update notice if a newer version is available. To skip this check:
