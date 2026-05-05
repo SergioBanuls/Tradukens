@@ -1,6 +1,6 @@
 [project]
 name = "tradukens"
-version = "0.1.1"
+version = "0.1.2"
 description = "Local prompt translator wrapper for coding CLIs."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -53,6 +53,11 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build]
+exclude = [
+    "/logo.png",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
