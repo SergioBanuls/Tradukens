@@ -279,6 +279,48 @@ def test_interceptor_keeps_buffer_after_bracketed_paste_markers():
     assert pipeline.inputs == ["hola"]
 
 
+def test_interceptor_treats_carriage_returns_inside_bracketed_paste_as_newlines():
+    pipeline = FakePipeline("hello\nworld")
+    metrics = FakeMetrics()
+    interceptor = make_interceptor(pipeline, metrics)
+
+    child_output, stdout_output = collect_output(
+        interceptor,
+        b"\x1b[200~hola\r\nmundo\x1b[201~\r",
+    )
+
+    assert (
+        child_output
+        == b"\x1b[200~hola\nmundo\x1b[201~"
+        + backspaces("hola\nmundo")
+        + b"hello\nworld"
+    )
+    assert stdout_output == b"Traduciendo..." + erase("Traduciendo...")
+    assert pipeline.inputs == ["hola\nmundo"]
+    assert metrics.events == [("codex", "translated")]
+
+
+def test_interceptor_handles_bracketed_paste_split_across_chunks():
+    pipeline = FakePipeline("hello\nworld")
+    metrics = FakeMetrics()
+    interceptor = make_interceptor(pipeline, metrics)
+    child_chunks: list[bytes] = []
+    stdout_chunks: list[bytes] = []
+
+    interceptor.handle(b"\x1b[200~hola\r", child_chunks.append, stdout_chunks.append)
+    interceptor.handle(b"\nmundo\x1b[201~", child_chunks.append, stdout_chunks.append)
+    interceptor.handle(b"\r", child_chunks.append, stdout_chunks.append)
+
+    assert (
+        b"".join(child_chunks)
+        == b"\x1b[200~hola\nmundo\x1b[201~"
+        + backspaces("hola\nmundo")
+        + b"hello\nworld"
+    )
+    assert b"".join(stdout_chunks) == b"Traduciendo..." + erase("Traduciendo...")
+    assert pipeline.inputs == ["hola\nmundo"]
+
+
 def test_interceptor_keeps_buffer_after_st_terminated_terminal_response():
     pipeline = FakePipeline("hello")
     metrics = FakeMetrics()

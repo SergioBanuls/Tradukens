@@ -38,6 +38,8 @@ class InputInterceptor:
         self._escape_buffer = bytearray()
         self._buffer_dirty = False
         self._pending_review = False
+        self._in_bracketed_paste = False
+        self._skip_next_paste_lf = False
 
     def handle(
         self,
@@ -51,6 +53,9 @@ class InputInterceptor:
             self._handle_byte(byte, write_child, write_stdout)
 
     def _handle_byte(self, byte: int, write_child: WriteFn, write_stdout: WriteFn) -> None:
+        if self._skip_next_paste_lf and byte != 0x0A:
+            self._skip_next_paste_lf = False
+
         if self._escape_state is not None:
             self._handle_escape_byte(byte, write_child, write_stdout)
             return
@@ -61,10 +66,16 @@ class InputInterceptor:
             return
 
         if byte == 0x0A:
+            if self._in_bracketed_paste and self._skip_next_paste_lf:
+                self._skip_next_paste_lf = False
+                return
             self._insert_newline(write_child)
             return
 
         if byte == 0x0D:
+            if self._in_bracketed_paste:
+                self._insert_pasted_carriage_return(write_child)
+                return
             self._handle_enter(bytes([byte]), write_child, write_stdout)
             return
 
@@ -79,6 +90,8 @@ class InputInterceptor:
             self._raw_line.clear()
             self._buffer_dirty = False
             self._pending_review = False
+            self._in_bracketed_paste = False
+            self._skip_next_paste_lf = False
             return
 
         if byte == 0x15:
@@ -158,6 +171,14 @@ class InputInterceptor:
             self._handle_enter(sequence, write_child, write_stdout)
         elif _is_shift_enter(sequence):
             self._insert_newline(write_child)
+        elif _is_bracketed_paste_start(sequence):
+            self._in_bracketed_paste = True
+            self._skip_next_paste_lf = False
+            write_child(sequence)
+        elif _is_bracketed_paste_end(sequence):
+            self._in_bracketed_paste = False
+            self._skip_next_paste_lf = False
+            write_child(sequence)
         elif not self._raw_line or _is_terminal_response(sequence):
             write_child(sequence)
         elif _is_enhanced_key_release(sequence):
@@ -215,6 +236,11 @@ class InputInterceptor:
     def _insert_newline(self, write_child: WriteFn) -> None:
         self._raw_line.extend(b"\n")
         write_child(b"\n")
+
+    def _insert_pasted_carriage_return(self, write_child: WriteFn) -> None:
+        self._raw_line.extend(b"\n")
+        write_child(b"\n")
+        self._skip_next_paste_lf = True
 
     def _decode_line(self) -> str:
         return self._raw_line.decode("utf-8", errors="ignore")
@@ -411,6 +437,14 @@ def _is_focus_event(sequence: bytes) -> bool:
 
 def _is_bracketed_paste_marker(sequence: bytes) -> bool:
     return sequence in {b"\x1b[200~", b"\x1b[201~"}
+
+
+def _is_bracketed_paste_start(sequence: bytes) -> bool:
+    return sequence == b"\x1b[200~"
+
+
+def _is_bracketed_paste_end(sequence: bytes) -> bool:
+    return sequence == b"\x1b[201~"
 
 
 def _is_st_terminated_terminal_response(sequence: bytes) -> bool:

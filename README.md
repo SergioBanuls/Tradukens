@@ -82,6 +82,12 @@ Start a wrapped OpenCode session:
 uv run tradukens opencode
 ```
 
+When starting `codex`, `claude`, or `opencode`, Tradukens checks the latest GitHub release and prints a short update notice if a newer version is available. To skip this check:
+
+```bash
+tradukens codex --no-update-check
+```
+
 Check the installation:
 
 ```bash

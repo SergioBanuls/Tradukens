@@ -14,6 +14,7 @@ from tradukens.repl import TradukensRepl
 from tradukens.setup import SetupError, setup_spanish
 from tradukens.tokens import DEFAULT_ENCODING, TokenCounterError, TokenSavings, compare_token_savings
 from tradukens.translation import build_pipeline
+from tradukens.update_check import check_for_update, format_update_notice
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -46,6 +47,13 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(format_doctor_report(report))
         return 0 if report.ok else 1
+
+    if (
+        args.command in {"codex", "claude", "opencode"}
+        and not args.no_update_check
+        and not args.dry_run
+    ):
+        _print_update_notice()
 
     pipeline = build_pipeline(paths, settings)
     metrics = MetricsRecorder(paths.metrics_file, enabled=settings.metrics_enabled)
@@ -170,6 +178,11 @@ def build_parser() -> argparse.ArgumentParser:
             help="print exec-mode agent commands instead of executing them",
         )
         agent_parser.add_argument(
+            "--no-update-check",
+            action="store_true",
+            help="skip the GitHub release update check on startup",
+        )
+        agent_parser.add_argument(
             "agent_args",
             nargs=argparse.REMAINDER,
             help="arguments passed to the underlying agent after --",
@@ -186,6 +199,12 @@ def _read_prompt_text(parts: list[str]) -> str:
     if parts == ["-"]:
         return sys.stdin.read()
     return " ".join(parts)
+
+
+def _print_update_notice() -> None:
+    update = check_for_update(__version__)
+    if update is not None:
+        print(format_update_notice(update), file=sys.stderr)
 
 
 def _savings_payload(result, savings: TokenSavings, output: str) -> dict:
